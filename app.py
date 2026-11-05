@@ -31,50 +31,7 @@ app = Flask(__name__)
 # CONFIGURATION
 # =========================
 
-=False,
-        default=3000
-    )
-
-    user_id = db.Column(
-        db.Integer,
-        db.ForeignKey("user.id"),
-        unique=True,
-        nullable=False
-    )
-
-
-# =========================
-# LOAD USER
-# =========================
-
-@login_manager.user_loader
-def load_user(user_id):
-
-    return db.session.get(User, int(user_id))
-
-
-# =========================
-# HOME
-# =========================
-
-@app.route("/")
-def home():
-
-    return render_template("index.html")
-
-
-# =========================
-# DATABASE CREATION
-# =========================
-@app.route("/signup", methods=["GET", "POST"])
-def signup():
-
-    if request.method == "POST":
-
-        username = request.form["username"]
-        password = request.form["password"]
-
-      import os
+import os
 
 app.config["SECRET_KEY"] = os.environ.get(
     "SECRET_KEY",
@@ -159,7 +116,50 @@ class Budget(db.Model):
 
     monthly_amount = db.Column(
         db.Float,
-        nullable  existing_user = User.query.filter_by(
+        nullable=False,
+        default=3000
+    )
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("user.id"),
+        unique=True,
+        nullable=False
+    )
+
+
+# =========================
+# LOAD USER
+# =========================
+
+@login_manager.user_loader
+def load_user(user_id):
+
+    return db.session.get(User, int(user_id))
+
+
+# =========================
+# HOME
+# =========================
+
+@app.route("/")
+def home():
+
+    return render_template("index.html")
+
+
+# =========================
+# DATABASE CREATION
+# =========================
+@app.route("/signup", methods=["GET", "POST"])
+def signup():
+
+    if request.method == "POST":
+
+        username = request.form["username"]
+        password = request.form["password"]
+
+        existing_user = User.query.filter_by(
             username=username
         ).first()
 
@@ -733,10 +733,10 @@ def update_budget():
 with app.app_context():
     db.create_all()
 
+
 if __name__ == "__main__":
 
     print("Starting ExpenseFlow...")
-
     print("Database initialized successfully!")
 
     app.run(host="127.0.0.1", port=5000, debug=True)
