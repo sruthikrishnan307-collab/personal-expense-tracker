@@ -10,42 +10,101 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Personal Expense Tracker</title>
+    <title>ExpenseFlow | Personal Expense Tracker</title>
 
+    <!-- Bootstrap -->
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         rel="stylesheet"
     >
 
+    <!-- Custom CSS -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
 </head>
 
-<body>
 
-    <!-- Navigation -->
+<body class="home-page">
 
-    <nav class="navbar navbar-dark bg-dark">
+
+    <!-- =========================================
+         NAVBAR
+    ========================================== -->
+
+    <nav class="navbar navbar-expand-lg home-navbar">
 
         <div class="container">
 
-            <a class="navbar-brand" href="/">
-                Expense Tracker
+            <a
+                class="navbar-brand home-brand"
+                href="/"
+            >
+                <span class="brand-icon">💰</span>
+                ExpenseFlow
             </a>
 
-            <div>
 
-                <a
-                    href="/login"
-                    class="btn btn-outline-light me-2"
-                >
-                    Login
-                </a>
+            <button
+                class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#mainNavbar"
+            >
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-                <a
-                    href="/signup"
-                    class="btn btn-primary"
-                >
-                    Sign Up
-                </a>
+
+            <div
+                class="collapse navbar-collapse"
+                id="mainNavbar"
+            >
+
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+
+                    <li class="nav-item">
+                        <a
+                            class="nav-link"
+                            href="#features"
+                        >
+                            Features
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a
+                            class="nav-link"
+                            href="#how-it-works"
+                        >
+                            How It Works
+                        </a>
+                    </li>
+
+                    <li class="nav-item ms-lg-3">
+
+                        <a
+                            href="/login"
+                            class="btn btn-outline-light nav-login"
+                        >
+                            Login
+                        </a>
+
+                    </li>
+
+                    <li class="nav-item ms-lg-2">
+
+                        <a
+                            href="/signup"
+                            class="btn btn-light nav-signup"
+                        >
+                            Get Started
+                        </a>
+
+                    </li>
+
+                </ul>
 
             </div>
 
@@ -54,85 +113,236 @@
     </nav>
 
 
-    <!-- Hero Section -->
+    <!-- =========================================
+         HERO SECTION
+    ========================================== -->
 
-    <div class="container">
+    <section class="hero-section">
 
-        <div class="row align-items-center min-vh-75 py-5">
+        <div class="container">
 
-            <div class="col-md-7">
+            <div class="row align-items-center min-vh-100">
 
-                <h1 class="display-4 fw-bold">
-                    Track Your Expenses Easily
-                </h1>
 
-                <p class="lead text-muted mt-3">
-                    Manage your daily expenses, organize them
-                    into categories, and understand where your
-                    money goes.
-                </p>
+                <!-- Hero Text -->
 
-                <div class="mt-4">
+                <div class="col-lg-6">
 
-                    <a
-                        href="/signup"
-                        class="btn btn-primary btn-lg me-2"
-                    >
-                        Get Started
-                    </a>
+                    <div class="hero-badge">
+                        ✨ Smart money management made simple
+                    </div>
 
-                    <a
-                        href="/login"
-                        class="btn btn-outline-secondary btn-lg"
-                    >
-                        Login
-                    </a>
+
+                    <h1 class="hero-title">
+
+                        Take Control
+                        <span>of Your Money.</span>
+
+                    </h1>
+
+
+                    <p class="hero-text">
+
+                        Track your daily expenses, organize your
+                        spending, and understand where your money
+                        goes — all in one simple dashboard.
+
+                    </p>
+
+
+                    <div class="hero-buttons">
+
+                        <a
+                            href="/signup"
+                            class="btn hero-primary-btn"
+                        >
+                            Start Tracking
+                            <span>→</span>
+                        </a>
+
+
+                        <a
+                            href="/login"
+                            class="btn hero-secondary-btn"
+                        >
+                            Login
+                        </a>
+
+                    </div>
+
+
+                    <div class="hero-trust">
+
+                        <span>✓ Easy to use</span>
+
+                        <span>✓ Expense analytics</span>
+
+                        <span>✓ Secure login</span>
+
+                    </div>
 
                 </div>
 
-            </div>
+
+                <!-- Dashboard Preview -->
+
+                <div class="col-lg-6 mt-5 mt-lg-0">
+
+                    <div class="dashboard-preview">
 
 
-            <!-- Features -->
+                        <!-- Preview Header -->
 
-            <div class="col-md-5 mt-5 mt-md-0">
+                        <div class="preview-header">
 
-                <div class="card shadow-sm">
+                            <div>
 
-                    <div class="card-body">
+                                <small>
+                                    Welcome back
+                                </small>
 
-                        <h4 class="mb-4">
-                            What you can do
-                        </h4>
+                                <h5>
+                                    Your Expenses
+                                </h5>
 
-                        <div class="mb-3">
-                            <strong>💰 Track Expenses</strong>
-                            <p class="text-muted mb-0">
-                                Record your daily spending.
-                            </p>
+                            </div>
+
+                            <div class="preview-avatar">
+                                👤
+                            </div>
+
                         </div>
 
-                        <div class="mb-3">
-                            <strong>📂 Organize Categories</strong>
-                            <p class="text-muted mb-0">
-                                Categorize food, travel, bills,
-                                shopping and more.
-                            </p>
+
+                        <!-- Preview Total -->
+
+                        <div class="preview-total">
+
+                            <small>
+                                Total Spending
+                            </small>
+
+                            <h2>
+                                ₹12,450
+                            </h2>
+
+                            <span>
+                                This month
+                            </span>
+
                         </div>
 
-                        <div class="mb-3">
-                            <strong>📊 View Analytics</strong>
-                            <p class="text-muted mb-0">
-                                Understand your spending through
-                                charts and summaries.
-                            </p>
+
+                        <!-- Mini Stats -->
+
+                        <div class="row g-3 mt-2">
+
+                            <div class="col-6">
+
+                                <div class="preview-stat">
+
+                                    <span>🍔</span>
+
+                                    <div>
+
+                                        <small>
+                                            Food
+                                        </small>
+
+                                        <strong>
+                                            ₹3,250
+                                        </strong>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="col-6">
+
+                                <div class="preview-stat">
+
+                                    <span>🚗</span>
+
+                                    <div>
+
+                                        <small>
+                                            Travel
+                                        </small>
+
+                                        <strong>
+                                            ₹2,100
+                                        </strong>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="col-6">
+
+                                <div class="preview-stat">
+
+                                    <span>🛍️</span>
+
+                                    <div>
+
+                                        <small>
+                                            Shopping
+                                        </small>
+
+                                        <strong>
+                                            ₹4,600
+                                        </strong>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="col-6">
+
+                                <div class="preview-stat">
+
+                                    <span>🎬</span>
+
+                                    <div>
+
+                                        <small>
+                                            Entertainment
+                                        </small>
+
+                                        <strong>
+                                            ₹2,500
+                                        </strong>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
                         </div>
 
-                        <div>
-                            <strong>✏️ Manage Expenses</strong>
-                            <p class="text-muted mb-0">
-                                Add, edit and delete your expenses.
-                            </p>
+
+                        <!-- Preview Chart -->
+
+                        <div class="preview-chart">
+
+                            <div class="chart-line line-one"></div>
+
+                            <div class="chart-line line-two"></div>
+
+                            <div class="chart-line line-three"></div>
+
+                            <div class="chart-wave"></div>
+
                         </div>
 
                     </div>
@@ -143,7 +353,377 @@
 
         </div>
 
-    </div>
+    </section>
+
+
+    <!-- =========================================
+         FEATURES
+    ========================================== -->
+
+    <section
+        id="features"
+        class="features-section"
+    >
+
+        <div class="container">
+
+
+            <div class="section-heading">
+
+                <span>
+                    FEATURES
+                </span>
+
+                <h2>
+                    Everything you need to manage expenses
+                </h2>
+
+                <p>
+                    Keep your spending organized and understand
+                    your financial habits with simple tools.
+                </p>
+
+            </div>
+
+
+            <div class="row g-4">
+
+
+                <!-- Feature 1 -->
+
+                <div class="col-md-6 col-lg-3">
+
+                    <div class="feature-card">
+
+                        <div class="feature-icon">
+                            💸
+                        </div>
+
+                        <h4>
+                            Track Expenses
+                        </h4>
+
+                        <p>
+                            Record your daily expenses and keep
+                            everything organized in one place.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Feature 2 -->
+
+                <div class="col-md-6 col-lg-3">
+
+                    <div class="feature-card">
+
+                        <div class="feature-icon">
+                            🗂️
+                        </div>
+
+                        <h4>
+                            Categories
+                        </h4>
+
+                        <p>
+                            Organize spending into food, travel,
+                            bills, shopping and more.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Feature 3 -->
+
+                <div class="col-md-6 col-lg-3">
+
+                    <div class="feature-card">
+
+                        <div class="feature-icon">
+                            📊
+                        </div>
+
+                        <h4>
+                            Analytics
+                        </h4>
+
+                        <p>
+                            Visualize your spending with clear
+                            charts and category breakdowns.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Feature 4 -->
+
+                <div class="col-md-6 col-lg-3">
+
+                    <div class="feature-card">
+
+                        <div class="feature-icon">
+                            📅
+                        </div>
+
+                        <h4>
+                            Monthly Summary
+                        </h4>
+
+                        <p>
+                            Review your monthly spending and
+                            understand your financial patterns.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================================
+         HOW IT WORKS
+    ========================================== -->
+
+    <section
+        id="how-it-works"
+        class="how-section"
+    >
+
+        <div class="container">
+
+
+            <div class="section-heading">
+
+                <span>
+                    HOW IT WORKS
+                </span>
+
+                <h2>
+                    Simple from start to finish
+                </h2>
+
+            </div>
+
+
+            <div class="row g-4">
+
+
+                <div class="col-md-4">
+
+                    <div class="step-card">
+
+                        <div class="step-number">
+                            01
+                        </div>
+
+                        <h4>
+                            Create an Account
+                        </h4>
+
+                        <p>
+                            Sign up and securely access your
+                            personal expense dashboard.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <div class="step-card">
+
+                        <div class="step-number">
+                            02
+                        </div>
+
+                        <h4>
+                            Add Your Expenses
+                        </h4>
+
+                        <p>
+                            Record expenses with amount,
+                            category and date.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <div class="step-card">
+
+                        <div class="step-number">
+                            03
+                        </div>
+
+                        <h4>
+                            Analyze Your Spending
+                        </h4>
+
+                        <p>
+                            Use charts, filters and monthly
+                            summaries to understand your spending.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================================
+         CALL TO ACTION
+    ========================================== -->
+
+    <section class="cta-section">
+
+        <div class="container">
+
+            <div class="cta-card">
+
+                <div>
+
+                    <span class="cta-small">
+                        READY TO START?
+                    </span>
+
+                    <h2>
+                        Make every rupee count.
+                    </h2>
+
+                    <p>
+                        Start tracking your expenses today.
+                    </p>
+
+                </div>
+
+
+                <a
+                    href="/signup"
+                    class="btn cta-btn"
+                >
+                    Create Free Account →
+                </a>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================================
+         FOOTER
+    ========================================== -->
+
+    <footer class="site-footer">
+
+        <div class="container">
+
+            <div class="row g-4">
+
+
+                <div class="col-md-6">
+
+                    <a
+                        href="/"
+                        class="footer-brand"
+                    >
+                        💰 ExpenseFlow
+                    </a>
+
+                    <p>
+                        A simple and smart way to track,
+                        organize and understand your expenses.
+                    </p>
+
+                </div>
+
+
+                <div class="col-md-3">
+
+                    <h6>
+                        Navigation
+                    </h6>
+
+                    <a href="#features">
+                        Features
+                    </a>
+
+                    <a href="#how-it-works">
+                        How It Works
+                    </a>
+
+                </div>
+
+
+                <div class="col-md-3">
+
+                    <h6>
+                        Account
+                    </h6>
+
+                    <a href="/login">
+                        Login
+                    </a>
+
+                    <a href="/signup">
+                        Sign Up
+                    </a>
+
+                </div>
+
+
+            </div>
+
+
+            <hr>
+
+
+            <div class="footer-bottom">
+
+                <span>
+                    © 2026 ExpenseFlow
+                </span>
+
+                <span>
+                    Built with Flask & Python
+                </span>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+
+    <!-- Bootstrap JS -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    ></script>
 
 </body>
 

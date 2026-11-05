@@ -1,0 +1,207 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Reports | ExpenseFlow</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        .report-page {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 25px;
+        }
+
+        .report-header {
+            margin-bottom: 25px;
+        }
+
+        .report-header h1 {
+            color: #6845c2;
+            margin-bottom: 8px;
+        }
+
+        .report-filter, .report-summary, .report-table {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.06);
+        }
+
+        .report-filter form {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+            align-items: end;
+        }
+
+        .report-filter label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .report-filter input {
+            padding: 11px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .report-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            background: #6845c2;
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .report-summary h2 {
+            color: #6845c2;
+        }
+
+        .report-table {
+            overflow-x: auto;
+        }
+
+        .report-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .report-table th,
+        .report-table td {
+            padding: 14px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+        }
+
+        .report-table th {
+            background: #6845c2;
+            color: white;
+        }
+
+        .report-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="report-page">
+
+    <div class="report-header">
+        <h1>Expense Reports</h1>
+        <p>Analyze your spending over a selected period.</p>
+    </div>
+
+    <div class="report-filter">
+
+        <h3>Select Date Range</h3>
+
+        <form method="GET" action="{{ url_for('expense_report') }}">
+
+            <div>
+                <label for="start_date">Start Date</label>
+                <input type="date"
+                       id="start_date"
+                       name="start_date"
+                       value="{{ start_date or '' }}">
+            </div>
+
+            <div>
+                <label for="end_date">End Date</label>
+                <input type="date"
+                       id="end_date"
+                       name="end_date"
+                       value="{{ end_date or '' }}">
+            </div>
+
+            <button type="submit" class="report-btn">
+                Generate Report
+            </button>
+
+            <a href="{{ url_for('expense_report') }}"
+               class="report-btn">
+                Clear
+            </a>
+
+        </form>
+
+    </div>
+
+    <div class="report-summary">
+        <h3>Total Spending for Selected Period</h3>
+        <h2>₹{{ "%.2f"|format(report_total) }}</h2>
+        <p>{{ expenses|length }} transactions found</p>
+    </div>
+
+    <div class="report-actions">
+        <a href="{{ url_for('export_csv', start_date=start_date, end_date=end_date) }}"
+   class="report-btn">
+    Export CSV
+        </a>
+
+        <a href="{{ url_for('export_pdf', start_date=start_date, end_date=end_date  ) }}"
+           class="report-btn">
+            Download PDF
+        </a>
+    </div>
+
+    <div class="report-table">
+
+        <h3>Transaction Details</h3>
+
+        {% if expenses %}
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Date</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for expense in expenses %}
+                <tr>
+                    <td>{{ expense.id }}</td>
+                    <td>{{ expense.title }}</td>
+                    <td>{{ expense.category }}</td>
+                    <td>{{ expense.date }}</td>
+                    <td>₹{{ "%.2f"|format(expense.amount) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% else %}
+
+        <p>No expenses found for this date range.</p>
+
+        {% endif %}
+
+    </div>
+
+    <a href="{{ url_for('dashboard') }}" class="report-btn">
+        ← Back to Dashboard
+    </a>
+
+</div>
+
+</body>
+</html>

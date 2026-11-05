@@ -2,522 +2,1005 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <title>Dashboard | ExpenseFlow</title>
 
-    <title>Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Chart.js -->
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-     <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-    rel="stylesheet"
->
 </head>
 
-<body>
-        <nav class="navbar navbar-dark bg-dark">
-        <div class="container">
+<body class="dashboard-page">
 
-            <a class="navbar-brand" href="/dashboard">
-                Expense Tracker
+<div class="dashboard-layout">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <a href="/" class="sidebar-brand">
+            <span class="brand-icon">💰</span>
+            ExpenseFlow
+        </a>
+
+        <p class="sidebar-label">MENU</p>
+
+        <nav class="sidebar-nav">
+
+            <a href="/dashboard" class="sidebar-link active">
+                <span>▦</span> Dashboard
             </a>
 
-            <div>
-                <span class="text-white me-3">
-                    Welcome, {{ current_user.username }}
-                </span>
+            <a href="#transactions" class="sidebar-link">
+                <span>↔</span> Transactions
+            </a>
 
-                <a
-                    href="/logout"
-                    class="btn btn-outline-danger"
-                >
-                    Logout
-                </a>
+            <a href="#analytics" class="sidebar-link">
+                <span>◷</span> Analytics
+            </a>
+
+            <a href="/add-expense" class="sidebar-link">
+                <span>＋</span> Add Expense
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <div class="sidebar-user">
+                <div class="user-avatar">
+                    {{ current_user.username[0]|upper }}
+                </div>
+
+                <div class="user-details">
+                    <strong>{{ current_user.username }}</strong>
+                    <small>Personal Account</small>
+                </div>
             </div>
 
-        </div>
-    </nav>
-    <div class="container mt-4">
-    <!-- ============================= -->
-    <!-- HEADER -->
-    <!-- ============================= -->
-
-    <h1>Personal Expense Tracker</h1>
-
-    <h2>
-        Welcome, {{ current_user.username }}!
-    </h2>
-
-
-    <!-- ============================= -->
-    <!-- SUMMARY -->
-    <!-- ============================= -->
-
-    <div class="row mb-4">
-
-    <!-- Total Spending -->
-    <div class="col-md-6 mb-3">
-
-        <div class="card shadow-sm h-100">
-
-            <div class="card-body">
-
-                <h5 class="card-title">
-                    Total Spending
-                </h5>
-
-                <h2 class="text-primary">
-                    ₹{{ "%.2f"|format(total_expenses) }}
-                </h2>
-
-            </div>
+            <a href="/logout" class="sidebar-link logout-link">
+                <span>↪</span> Logout
+            </a>
 
         </div>
 
-    </div>
-
-
-    <!-- Total Expenses -->
-    <div class="col-md-6 mb-3">
-
-        <div class="card shadow-sm h-100">
-
-            <div class="card-body">
-
-                <h5 class="card-title">
-                    Number of Expenses
-                </h5>
-
-                <h2 class="text-success">
-                    {{ expense_count }}
-                </h2>
-
+    </aside>
+<!-- Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="flash-message {{ category }}">
+                <span class="flash-icon">✓</span>
+                <span>{{ message }}</span>
+                <button onclick="this.parentElement.remove()">&times;</button>
             </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-    <br>
-
-
-    <!-- ============================= -->
-    <!-- CATEGORY SUMMARY -->
-    <!-- ============================= -->
-
-    <h2>Spending by Category</h2>
-
-    {% if category_totals %}
-
-        <ul>
-
-            {% for category, total in category_totals.items() %}
-
-                <li>
-                    <strong>{{ category }}</strong>:
-                    ₹{{ "%.2f"|format(total) }}
-                </li>
-
-            {% endfor %}
-
-        </ul>
-
-    {% else %}
-
-        <p>No expenses available.</p>
-
+        {% endfor %}
     {% endif %}
+{% endwith %}
+<script>
+    document.querySelectorAll(".flash-message").forEach(message => {
+        setTimeout(() => {
+            message.style.transition = "opacity 0.4s ease, transform 0.4s ease";
+            message.style.opacity = "0";
+            message.style.transform = "translateX(30px)";
+
+            setTimeout(() => {
+                message.remove();
+            }, 400);
+
+        }, 4000);
+    });
+</script> 
+
+    <!-- MAIN DASHBOARD -->
+
+    <main class="dashboard-main">
+
+        <!-- TOP HEADER -->
+
+        <header class="dashboard-header">
+
+            <div class="header-left">
+
+                <button class="menu-toggle"
+                        type="button"
+                        onclick="toggleSidebar()">
+                    ☰
+                </button>
+
+                <div>
+                    <h2>Dashboard</h2>
+                    <p>Welcome back, {{ current_user.username }}! Here's your financial overview.</p>
+                </div>
+
+            </div>
+
+            <a href="/add-expense" class="add-expense-btn">
+                ＋ Add Expense
+            </a>
+
+        </header>
 
 
-    <br>
+        <!-- SUMMARY CARDS -->
+
+        <section class="stats-grid">
+
+            <div class="stat-card purple-stat">
+
+                <div class="stat-top">
+                    <span>Total Expenses</span>
+                    <span class="stat-icon">💰</span>
+                </div>
+
+                <h2>₹{{ "%.2f"|format(total_expenses) }}</h2>
+
+                <p>Your filtered spending</p>
+
+            </div>
 
 
-    <!-- ============================= -->
-    <!-- ADD EXPENSE -->
-    <!-- ============================= -->
+            <div class="stat-card blue-stat">
 
-    <a href="/add-expense" class="btn btn-primary">
-    + Add Expense
-</a>
-    <br>
-    <br>
+                <div class="stat-top">
+                    <span>Total Transactions</span>
+                    <span class="stat-icon">🧾</span>
+                </div>
 
-<div class="card shadow-sm mb-4">
+                <h2>{{ expense_count }}</h2>
 
-    <div class="card-body">
+                <p>Recorded expenses</p>
 
-        <h4 class="card-title mb-3">
-            Monthly Summary
-        </h4>
+            </div>
 
-        {% if monthly_totals %}
 
-            <div class="row">
+            <div class="stat-card pink-stat">
 
-                {% for month, total in monthly_totals.items() %}
+                <div class="stat-top">
+                    <span>Average Expense</span>
+                    <span class="stat-icon">📊</span>
+                </div>
 
-                    <div class="col-md-4 mb-3">
+                <h2>
+                    ₹{{ "%.2f"|format(total_expenses / expense_count if expense_count else 0) }}
+                </h2>
 
-                        <div class="card border-primary h-100">
+                <p>Average per transaction</p>
 
-                            <div class="card-body">
+            </div>
 
-                                <h6 class="text-muted">
-                                    {{ month }}
-                                </h6>
 
-                                <h4 class="text-primary">
-                                    ₹{{ "%.2f"|format(total) }}
-                                </h4>
+            <div class="stat-card green-stat">
 
-                            </div>
+                <div class="stat-top">
+                    <span>Categories Used</span>
+                    <span class="stat-icon">🏷️</span>
+                </div>
 
-                        </div>
+                <h2>{{ category_totals|length }}</h2>
+
+                <p>Expense categories</p>
+
+            </div>
+
+        </section>
+        <!-- MONTHLY BUDGET SECTION -->
+
+        <section class="budget-section">
+
+            <div class="budget-card">
+
+                <div class="budget-header">
+
+                    <div>
+                        <span class="budget-label">MONTHLY FINANCIAL PLAN</span>
+                        <h2>My Monthly Budget</h2>
+                        <p>Keep track of your spending goals.</p>
+                    </div>
+
+                    <div class="budget-icon">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+
+                </div>
+
+
+                <div class="budget-details">
+
+                    <div class="budget-main">
+
+                        <span>Monthly Budget</span>
+
+                        <h1>
+                            ₹{{ "%.2f"|format(monthly_budget) }}
+                        </h1>
 
                     </div>
 
-                {% endfor %}
+                    <div class="budget-spent">
+
+                        <span>Amount Spent</span>
+
+                        <h3>
+                            ₹{{ "%.2f"|format(current_month_spending) }}
+                        </h3>
+
+                    </div>
+
+                    <div class="budget-remaining">
+
+                        <span>Remaining Balance</span>
+
+                        <h3 class="{{ 'over-budget' if budget_remaining < 0 else '' }}">
+                            ₹{{ "%.2f"|format(budget_remaining|abs) }}
+                            {% if budget_remaining < 0 %}
+                                Over Budget
+                            {% endif %}
+                        </h3>
+
+                    </div>
+
+                </div>
+
+
+                <div class="budget-progress-info">
+
+                    <span>Budget Usage</span>
+
+                    <strong>{{ "%.1f"|format(budget_percentage) }}%</strong>
+
+                </div>
+
+                <div class="budget-progress-bar">
+
+                    <div
+                        class="budget-progress-fill {% if budget_percentage >= 100 %}danger{% elif budget_percentage >= 80 %}warning{% endif %}"
+                        style="width: {{ budget_progress }}%;">
+                    </div>
+
+                </div>
+
+
+                {% if budget_percentage >= 100 %}
+
+                    <p class="budget-message danger-text">
+                        <i class="fas fa-exclamation-circle"></i>
+                        You've exceeded your monthly budget!
+                    </p>
+
+                {% elif budget_percentage >= 80 %}
+
+                    <p class="budget-message warning-text">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        You're approaching your monthly budget.
+                    </p>
+
+                {% else %}
+
+                    <p class="budget-message">
+                        <i class="fas fa-check-circle"></i>
+                        You're within your monthly budget. Keep it up!
+                    </p>
+
+                {% endif %}
+
+
+                <form action="{{ url_for('update_budget') }}"
+                    method="POST"
+                    class="budget-update-form">
+
+                    <label for="monthly_budget">Update Monthly Budget</label>
+
+                    <div class="budget-input-group">
+
+                        <span>₹</span>
+
+                        <input
+                            type="number"
+                            name="monthly_budget"
+                            id="monthly_budget"
+                            value="{{ monthly_budget }}"
+                            min="1"
+                            step="0.01"
+                            required
+                        >
+
+                        <button type="submit">
+                            <i class="fas fa-save"></i>
+                            Update Budget
+                        </button>
+
+                    </div>
+
+                </form>
 
             </div>
 
+        </section>
+        <!-- MONTHLY EXPENSE INSIGHTS -->
+
+        <section class="insights-section">
+
+            <div class="insights-heading">
+                <div>
+                    <span class="insights-label">YOUR FINANCIAL OVERVIEW</span>
+                    <h2>Monthly Expense Insights</h2>
+                    <p>Understand your spending habits and discover ways to save.</p>
+                </div>
+                <div class="insights-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+            </div>
+
+
+            <div class="insights-grid">
+
+                <!-- TOP CATEGORY -->
+
+                <div class="insight-card">
+
+                    <div class="insight-card-top">
+                        <div class="insight-card-icon purple">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <span>TOP CATEGORY</span>
+                    </div>
+
+                    <h3>{{ top_category }}</h3>
+
+                    <p>
+                        ₹{{ "%.2f"|format(top_category_amount) }}
+                    </p>
+
+                    <small>Your highest spending category this month</small>
+
+                </div>
+
+
+                <!-- THIS MONTH -->
+
+                <div class="insight-card">
+
+                    <div class="insight-card-top">
+                        <div class="insight-card-icon blue">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <span>THIS MONTH</span>
+                    </div>
+
+                    <h3>
+                        ₹{{ "%.2f"|format(current_month_spending) }}
+                    </h3>
+
+                    <p>Current month spending</p>
+
+                    <small>Based on all recorded expenses</small>
+
+                </div>
+
+
+                <!-- LAST MONTH -->
+
+                <div class="insight-card">
+
+                    <div class="insight-card-top">
+                        <div class="insight-card-icon orange">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <span>LAST MONTH</span>
+                    </div>
+
+                    <h3>
+                        ₹{{ "%.2f"|format(previous_month_spending) }}
+                    </h3>
+
+                    <p>Previous month spending</p>
+
+                    <small>For comparison with this month</small>
+
+                </div>
+
+
+                <!-- SPENDING TREND -->
+
+                <div class="insight-card">
+
+                    <div class="insight-card-top">
+                        <div class="insight-card-icon green">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <span>SPENDING TREND</span>
+                    </div>
+
+                    <h3 class="{% if spending_trend == 'increased' %}trend-increased{% elif spending_trend == 'decreased' %}trend-decreased{% endif %}">
+                        {% if spending_trend == "increased" %}
+                            <i class="fas fa-arrow-up"></i>
+                        {% elif spending_trend == "decreased" %}
+                            <i class="fas fa-arrow-down"></i>
+                        {% else %}
+                            <i class="fas fa-equals"></i>
+                        {% endif %}
+
+                        {{ "%.1f"|format(spending_change|abs) }}%
+                    </h3>
+
+                    <p>{{ spending_trend|capitalize }} spending</p>
+
+                    <small>Compared with last month</small>
+
+                </div>
+
+            </div>
+
+
+            <!-- SMART SAVING TIP -->
+
+            <div class="saving-tip-card">
+
+                <div class="saving-tip-icon">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+
+                <div>
+                    <span>SMART SAVING TIP</span>
+                    <h3>Improve your spending habits</h3>
+                    <p>{{ saving_tip }}</p>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ANALYTICS -->
+
+        <section class="analytics-grid" id="analytics">
+
+            <!-- CATEGORY CHART -->
+
+            <div class="dashboard-panel">
+
+                <div class="panel-heading">
+                    <div>
+                        <h3>Spending by Category</h3>
+                        <p>Understand where your money goes</p>
+                    </div>
+
+                    <span class="panel-badge">Category</span>
+                </div>
+
+                {% if category_totals %}
+
+                    <div class="chart-wrapper dashboard-doughnut">
+                        <canvas id="expenseChart"></canvas>
+                    </div>
+
+                {% else %}
+
+                    <div class="empty-chart">
+                        <span>📊</span>
+                        <h4>No expense data yet</h4>
+                        <p>Add expenses to see your category breakdown.</p>
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- MONTHLY CHART -->
+
+            <div class="dashboard-panel">
+
+                <div class="panel-heading">
+                    <div>
+                        <h3>Monthly Spending</h3>
+                        <p>Your spending across months</p>
+                    </div>
+
+                    <span class="panel-badge">Monthly</span>
+                </div>
+
+                {% if monthly_totals %}
+
+                    <div class="chart-wrapper dashboard-bar">
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+
+                {% else %}
+
+                    <div class="empty-chart">
+                        <span>📅</span>
+                        <h4>No monthly data yet</h4>
+                        <p>Your monthly overview will appear here.</p>
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </section>
+
+
+        <!-- CATEGORY BREAKDOWN -->
+
+        <section class="dashboard-panel category-panel">
+
+            <div class="panel-heading">
+                <div>
+                    <h3>Category Breakdown</h3>
+                    <p>Detailed view of your spending categories</p>
+                </div>
+            </div>
+
+            {% if category_totals %}
+
+                <div class="category-grid">
+
+                    {% for category, total in category_totals.items() %}
+
+                        <div class="category-item">
+
+                            <div class="category-item-top">
+                                <span class="category-name">
+                                    {{ category }}
+                                </span>
+
+                                <span class="category-symbol">●</span>
+                            </div>
+
+                            <h3>₹{{ "%.2f"|format(total) }}</h3>
+
+                            <div class="category-progress">
+                                <div style="width: {{ (total / total_expenses * 100) if total_expenses else 0 }}%"></div>
+                            </div>
+
+                            <small>
+                                {{ "%.1f"|format(total / total_expenses * 100 if total_expenses else 0) }}% of spending
+                            </small>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <p class="empty-message">No category information available yet.</p>
+
+            {% endif %}
+
+        </section>
+
+
+        <!-- FILTERS -->
+
+        <section class="dashboard-panel filter-panel">
+
+            <div class="panel-heading">
+                <div>
+                    <h3>Filter Expenses</h3>
+                    <p>Find expenses by category or date</p>
+                </div>
+            </div>
+
+            <form method="GET" action="/dashboard">
+
+                <div class="filter-grid">
+
+                    <div class="filter-field">
+
+                        <label for="category">Category</label>
+
+                        <select name="category" id="category">
+
+                            <option value="">All Categories</option>
+
+                            <option value="Food"
+                                {% if selected_category == "Food" %}selected{% endif %}>
+                                Food
+                            </option>
+
+                            <option value="Travel"
+                                {% if selected_category == "Travel" %}selected{% endif %}>
+                                Travel
+                            </option>
+
+                            <option value="Bills"
+                                {% if selected_category == "Bills" %}selected{% endif %}>
+                                Bills
+                            </option>
+
+                            <option value="Entertainment"
+                                {% if selected_category == "Entertainment" %}selected{% endif %}>
+                                Entertainment
+                            </option>
+
+                            <option value="Shopping"
+                                {% if selected_category == "Shopping" %}selected{% endif %}>
+                                Shopping
+                            </option>
+
+                            <option value="Other"
+                                {% if selected_category == "Other" %}selected{% endif %}>
+                                Other
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="filter-field">
+
+                        <label for="date">Date</label>
+
+                        <input
+                            type="date"
+                            id="date"
+                            name="date"
+                            value="{{ selected_date or '' }}"
+                        >
+
+                    </div>
+
+
+                    <div class="filter-actions">
+
+                        <button type="submit" class="filter-btn">
+                            Apply Filters
+                        </button>
+
+                        <a href="/dashboard" class="clear-filter-btn">
+                            Clear
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </section>
+
+
+        <!-- RECENT TRANSACTIONS -->
+
+        
+<section class="dashboard-panel transactions-panel" id="transactions">
+
+    <div class="panel-heading transaction-heading">
+        <div>
+            <h3>Recent Transactions</h3>
+            <p>Manage and review your expenses</p>
+        </div>
+
+        <a href="/add-expense" class="view-add-btn">
+            ＋ Add New
+        </a>
+    </div>
+    <a href="{{ url_for('export_csv') }}" class="export-btn">
+    ⬇ Export CSV
+     </a>
+     <a href="{{ url_for('export_pdf') }}" class="export-btn pdf-export-btn">
+    📄 Download PDF
+     </a>
+     
+
+    <div class="table-container">
+
+        {% if expenses %}
+
+        <table class="expense-table">
+
+            <thead>
+                <tr>
+                    <th>Expense</th>
+                    <th>Amount</th>
+                    <th>Category</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for expense in expenses %}
+                <tr>
+                    <td>
+                        <div class="expense-title">
+                            <span class="expense-symbol">💳</span>
+                            <strong>{{ expense.title }}</strong>
+                        </div>
+                    </td>
+
+                    <td class="expense-amount">
+                        ₹{{ "%.2f"|format(expense.amount) }}
+                    </td>
+
+                    <td>
+                        <span class="category-badge">
+                            {{ expense.category }}
+                        </span>
+                    </td>
+
+                    <td class="expense-date">
+                        {{ expense.date }}
+                    </td>
+
+                    <td>
+                        <div class="table-actions">
+                            <a href="/edit-expense/{{ expense.id }}"
+                               class="edit-btn">
+                                Edit
+                            </a>
+
+                            <a href="/delete-expense/{{ expense.id }}"
+                               class="delete-btn"
+                               onclick="return confirmDelete(event, this);">
+                                Delete
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+
         {% else %}
 
-            <p class="text-muted mb-0">
-                No monthly expense data available.
+        <div class="empty-state">
+
+            <div class="empty-state-icon">
+                🧾
+            </div>
+
+            <h3>No Expenses Yet!</h3>
+
+            <p>
+                Start tracking your money today.
+                Add your first expense and keep your finances organized.
             </p>
+
+            <a href="/add-expense" class="empty-state-btn">
+                <span>＋</span> Add Your First Expense
+            </a>
+
+            <a href="/dashboard" class="empty-clear-link">
+                Clear filters
+            </a>
+
+        </div>
 
         {% endif %}
 
     </div>
 
+</section>
+
+
+
+        <!-- FOOTER -->
+
+        <footer class="dashboard-footer">
+            <p>© 2026 ExpenseFlow. Track better. Save smarter.</p>
+        </footer>
+
+    </main>
+
 </div>
-    <!-- ============================= -->
-    <!-- SPENDING CHART -->
-    <!-- ============================= -->
 
-    <h2>Spending Chart</h2>
 
-<ul id="chartData">
+<!-- CHART DATA -->
 
+<ul id="categoryChartData" hidden>
     {% for category, total in category_totals.items() %}
-
-        <li
-            data-category="{{ category }}"
-            data-total="{{ total }}"
-        >
-            {{ category }} - ₹{{ "%.2f"|format(total) }}
-        </li>
-
+        <li data-label="{{ category }}" data-value="{{ total }}"></li>
     {% endfor %}
-
 </ul>
-<div style="width: 300px; height: 300px;">
-    <canvas id="expenseChart"></canvas>
-</div>
 
-<canvas id="expenseChart"></canvas>
+<ul id="monthlyChartData" hidden>
+    {% for month, total in monthly_totals.items() %}
+        <li data-label="{{ month }}" data-value="{{ total }}"></li>
+    {% endfor %}
+</ul>
 
+
+<!-- JAVASCRIPT -->
 
 <script>
-    const items = document.querySelectorAll("#chartData li");
 
-    const labels = [];
-    const values = [];
+    function toggleSidebar() {
+        document.getElementById("sidebar").classList.toggle("sidebar-open");
+    }
 
-    items.forEach(function(item) {
-        labels.push(item.dataset.category);
-        values.push(Number(item.dataset.total));
+
+    // CATEGORY DOUGHNUT CHART
+
+    const categoryItems = document.querySelectorAll(
+        "#categoryChartData li"
+    );
+
+    const categoryLabels = [];
+    const categoryValues = [];
+
+    categoryItems.forEach(item => {
+        categoryLabels.push(item.dataset.label);
+        categoryValues.push(Number(item.dataset.value));
     });
 
-    const ctx = document.getElementById("expenseChart");
+    const categoryCanvas = document.getElementById("expenseChart");
 
-    new Chart(ctx, {
-        type: "pie",
+    if (categoryCanvas && categoryLabels.length > 0) {
 
-        data: {
-            labels: labels,
+        new Chart(categoryCanvas, {
 
-            datasets: [{
-                label: "Spending by Category",
-                data: values
-            }]
-        },
+            type: "doughnut",
 
-        options: {
-            responsive: true,
-            maintainAspectRatio: false
+            data: {
+                labels: categoryLabels,
+
+                datasets: [{
+                    data: categoryValues,
+                    backgroundColor: [
+                        "#7657df",
+                        "#9b82ed",
+                        "#f29ac0",
+                        "#63b7e8",
+                        "#65c9a5",
+                        "#f4bd69",
+                        "#b6a2e8"
+                    ],
+                    borderWidth: 3,
+                    borderColor: "#ffffff",
+                    hoverOffset: 8
+                }]
+            },
+
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+
+                cutout: "68%",
+
+                plugins: {
+                    legend: {
+                        position: "bottom",
+                        labels: {
+                            padding: 18,
+                            usePointStyle: true
+                        }
+                    }
+                }
+            }
+
+        });
+
+    }
+
+
+    // MONTHLY BAR CHART
+
+    const monthlyItems = document.querySelectorAll(
+        "#monthlyChartData li"
+    );
+
+    const monthlyLabels = [];
+    const monthlyValues = [];
+
+    monthlyItems.forEach(item => {
+        monthlyLabels.push(item.dataset.label);
+        monthlyValues.push(Number(item.dataset.value));
+    });
+
+    const monthlyCanvas = document.getElementById("monthlyChart");
+
+    if (monthlyCanvas && monthlyLabels.length > 0) {
+
+        new Chart(monthlyCanvas, {
+
+            type: "bar",
+
+            data: {
+                labels: monthlyLabels,
+
+                datasets: [{
+                    label: "Monthly Expenses (₹)",
+                    data: monthlyValues,
+                    backgroundColor: "#8062e5",
+                    borderRadius: 8,
+                    maxBarThickness: 42
+                }]
+            },
+
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: "#f0edf7"
+                        }
+                    },
+
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+
+        });
+
+    }
+
+</script>
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="delete-modal">
+    <div class="delete-modal-content">
+        <div class="delete-modal-icon">!</div>
+
+        <h2>Delete Expense?</h2>
+
+        <p>
+            Are you sure you want to delete this expense?
+            This action cannot be undone.
+        </p>
+
+        <div class="delete-modal-actions">
+            <button type="button"
+                    class="cancel-delete-btn"
+                    onclick="closeDeleteModal()">
+                Cancel
+            </button>
+
+            <button type="button"
+                    class="confirm-delete-btn"
+                    id="confirmDeleteBtn">
+                Yes, Delete
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let deleteUrl = "";
+
+    function confirmDelete(event, link) {
+        event.preventDefault();
+
+        deleteUrl = link.href;
+
+        document.getElementById("deleteModal").classList.add("active");
+
+        return false;
+    }
+
+    function closeDeleteModal() {
+        document.getElementById("deleteModal").classList.remove("active");
+        deleteUrl = "";
+    }
+
+    document.getElementById("confirmDeleteBtn").addEventListener("click", function () {
+        if (deleteUrl) {
+            window.location.href = deleteUrl;
         }
     });
 </script>
-
-
-             
-    <br>
-    <br>
-
-
-    <!-- ============================= -->
-    <!-- FILTER EXPENSES -->
-    <!-- ============================= -->
-
-    <h2>Filter Expenses</h2>
-
-   <div class="card shadow-sm mb-4">
-
-    <div class="card-body">
-
-        <h4 class="card-title mb-3">
-            Filter Expenses
-        </h4>
-
-        <form method="GET" action="/dashboard">
-
-            <div class="row g-3 align-items-end">
-
-                <!-- Category -->
-
-                <div class="col-md-4">
-
-                    <label class="form-label">
-                        Category
-                    </label>
-
-                    <select
-                        name="category"
-                        class="form-select"
-                    >
-
-                        <option value="">
-                            All Categories
-                        </option>
-
-                        <option
-                            value="Food"
-                            {% if selected_category == "Food" %}
-                                selected
-                            {% endif %}
-                        >
-                            Food
-                        </option>
-
-                        <option
-                            value="Travel"
-                            {% if selected_category == "Travel" %}
-                                selected
-                            {% endif %}
-                        >
-                            Travel
-                        </option>
-
-                        <option
-                            value="Bills"
-                            {% if selected_category == "Bills" %}
-                                selected
-                            {% endif %}
-                        >
-                            Bills
-                        </option>
-
-                        <option
-                            value="Entertainment"
-                            {% if selected_category == "Entertainment" %}
-                                selected
-                            {% endif %}
-                        >
-                            Entertainment
-                        </option>
-
-                        <option
-                            value="Shopping"
-                            {% if selected_category == "Shopping" %}
-                                selected
-                            {% endif %}
-                        >
-                            Shopping
-                        </option>
-
-                        <option
-                            value="Other"
-                            {% if selected_category == "Other" %}
-                                selected
-                            {% endif %}
-                        >
-                            Other
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <!-- Date -->
-
-                <div class="col-md-4">
-
-                    <label class="form-label">
-                        Date
-                    </label>
-
-                    <input
-                        type="date"
-                        name="date"
-                        class="form-control"
-                        value="{{ selected_date or '' }}"
-                    >
-
-                </div>
-
-
-                <!-- Buttons -->
-
-                <div class="col-md-4">
-
-                    <button
-                        type="submit"
-                        class="btn btn-primary"
-                    >
-                        Apply Filters
-                    </button>
-
-                    <a
-                        href="/dashboard"
-                        class="btn btn-outline-secondary"
-                    >
-                        Clear Filters
-                    </a>
-
-                </div>
-
-            </div>
-
-        </form>
-
-    </div>
-
-</div>
-
-    <br>
-
-
-    <!-- ============================= -->
-    <!-- EXPENSE TABLE -->
-    <!-- ============================= -->
-
-    <h2>Your Expenses</h2>
-
-    {% if expenses %}
-
-    <div class="table-responsive">
-
-    <table class="table table-striped table-hover table-bordered align-middle">
-
-        <thead class="table-dark">
-
-            <tr>
-                <th>Title</th>
-                <th>Amount</th>
-                <th>Category</th>
-                <th>Date</th>
-                <th>Actions</th>
-            </tr>
-
-        </thead>
-
-        <tbody>
-
-    {% if expenses %}
-
-        {% for expense in expenses %}
-
-        <tr>
-
-            <td>{{ expense.title }}</td>
-
-            <td>
-                ₹{{ "%.2f"|format(expense.amount) }}
-            </td>
-
-            <td>
-                <span class="badge bg-secondary">
-                    {{ expense.category }}
-                </span>
-            </td>
-
-            <td>{{ expense.date }}</td>
-
-            <td>
-
-                <a
-                    href="/edit-expense/{{ expense.id }}"
-                    class="btn btn-sm btn-warning"
-                >
-                    Edit
-                </a>
-
-                <a
-                    href="/delete-expense/{{ expense.id }}"
-                    class="btn btn-sm btn-danger"
-                    onclick="return confirm('Are you sure you want to delete this expense?');"
-                >
-                    Delete
-                </a>
-
-            </td>
-
-        </tr>
-
-        {% endfor %}
-
-    {% else %}
-
-        <tr>
-
-            <td
-                colspan="5"
-                class="text-center text-muted py-4"
-            >
-                No expenses found.
-            </td>
-
-        </tr>
-
-    {% endif %}
-
-</tbody>
-
-    </table>
-
-</div>
-
-    {% else %}
-
-        <p>
-            You haven't added any expenses yet.
-        </p>
-
-    {% endif %}
-
-
-    <br>
-
-
-    <!-- ============================= -->
-    <!-- LOGOUT -->
-    <!-- ============================= -->
-
-    <a href="/logout" class="btn btn-outline-danger">
-    Logout
-</a>
-  </div>
-
 </body>
-
 </html>

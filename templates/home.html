@@ -1,0 +1,130 @@
+
+{% extends "base.html" %}
+
+{% block title %}SpendWise | Smart Expense Tracking{% endblock %}
+
+{% block content %}
+
+<section class="hero">
+
+    <div class="hero-content">
+        <span class="hero-tag">✦ YOUR MONEY, YOUR CONTROL</span>
+
+        <h1>
+            Manage your money.
+            <span>Build your future.</span>
+        </h1>
+
+        <p>
+            Track your daily expenses, understand your spending habits
+            and take control of your financial journey with SpendWise.
+        </p>
+
+        <div class="hero-buttons">
+            <a href="{{ url_for('signup') }}" class="btn">
+                Get Started →
+            </a>
+
+            <a href="{{ url_for('login') }}" class="secondary-btn">
+                Login to Account
+            </a>
+        </div>
+
+        <div class="hero-stats">
+            <div>
+                <h3>100%</h3>
+                <p>Expense Tracking</p>
+            </div>
+
+            <div>
+                <h3>24/7</h3>
+                <p>Access Anytime</p>
+            </div>
+
+            <div>
+                <h3>Simple</h3>
+                <p>Money Management</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="hero-visual">
+
+        <div class="visual-card">
+            <div class="visual-header">
+                <div>
+                    <p>Total Expenses</p>
+                    <h2>₹12,450</h2>
+                </div>
+                <span class="visual-icon">↗</span>
+            </div>
+
+            <div class="visual-chart">
+                <div class="chart-bar bar1"></div>
+                <div class="chart-bar bar2"></div>
+                <div class="chart-bar bar3"></div>
+                <div class="chart-bar bar4"></div>
+                <div class="chart-bar bar5"></div>
+                <div class="chart-bar bar6"></div>
+                <div class="chart-bar bar7"></div>
+            </div>
+
+            <div class="visual-footer">
+                <span>Weekly spending overview</span>
+                <span>2026</span>
+            </div>
+        </div>
+
+        <div class="floating-card">
+            <span>✓</span>
+            Smart money tracking
+        </div>
+
+    </div>
+
+</section>
+
+
+<section class="features">
+
+    <div class="section-heading">
+        <span>WHY SPENDWISE?</span>
+        <h2>Everything you need to manage money</h2>
+        <p>Simple tools to make smarter financial decisions.</p>
+    </div>
+
+    <div class="feature-grid">
+
+        <div class="feature-card">
+            <div class="feature-icon">💰</div>
+            <h3>Track Expenses</h3>
+            <p>Record your daily spending and keep everything organized.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>Visual Analytics</h3>
+            <p>Understand where your money goes with interactive charts.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">🎯</div>
+            <h3>Smart Insights</h3>
+            <p>Discover spending patterns and improve your financial habits.</p>
+        </div>
+
+    </div>
+
+</section>
+
+
+<section class="cta-section">
+    <h2>Ready to take control of your expenses?</h2>
+    <p>Start managing your money smarter today.</p>
+
+    <a href="{{ url_for('signup') }}" class="btn">
+        Create Your Free Account →
+    </a>
+</section>
+
+{% endblock %}
